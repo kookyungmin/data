@@ -66,17 +66,17 @@ module('unit/model/rollbackAttributes - model.rollbackAttributes()', function(ho
         return person;
       });
 
-      assert.equal(person.get('firstName'), 'Thomas');
+      assert.equal(person.get('firstName'), 'Thomas', 'PreCond: we mutated firstName');
       if (DEPRECATE_RECORD_LIFECYCLE_EVENT_METHODS) {
-        assert.equal(person.get('rolledBackCount'), 0);
+        assert.equal(person.get('rolledBackCount'), 0, 'PreCond: we have not yet rolled back');
       }
 
       run(() => person.rollbackAttributes());
 
-      assert.equal(person.get('firstName'), 'Tom');
+      assert.equal(person.get('firstName'), 'Tom', 'We rolled back firstName');
       assert.equal(person.get('hasDirtyAttributes'), false);
       if (DEPRECATE_RECORD_LIFECYCLE_EVENT_METHODS) {
-        assert.equal(person.get('rolledBackCount'), 1);
+        assert.equal(person.get('rolledBackCount'), 1, 'We rolled back once');
       }
     });
 
