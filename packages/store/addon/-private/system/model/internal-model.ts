@@ -234,7 +234,11 @@ export default class InternalModel {
 
   get recordReference() {
     if (this._recordReference === null) {
-      this._recordReference = new RecordReference(this.store, this);
+      if (RECORD_ARRAY_MANAGER_IDENTIFIERS) {
+        this._recordReference = new RecordReference(this.store, this.identifier);
+      } else {
+        this._recordReference = new RecordReference(this.store, this);
+      }
     }
     return this._recordReference;
   }
@@ -1566,10 +1570,17 @@ export default class InternalModel {
       }
 
       let relationshipKind = relationship.relationshipMeta.kind;
+      let identifierOrInternalModel;
+      if (RECORD_ARRAY_MANAGER_IDENTIFIERS) {
+        identifierOrInternalModel = this.identifier;
+      } else {
+        identifierOrInternalModel = this;
+      }
+
       if (relationshipKind === 'belongsTo') {
-        reference = new BelongsToReference(this.store, this, relationship, name);
+        reference = new BelongsToReference(this.store, identifierOrInternalModel, relationship, name);
       } else if (relationshipKind === 'hasMany') {
-        reference = new HasManyReference(this.store, this, relationship, name);
+        reference = new HasManyReference(this.store, identifierOrInternalModel, relationship, name);
       }
 
       this.references[name] = reference;
@@ -1581,7 +1592,7 @@ export default class InternalModel {
 
 if (RECORD_ARRAY_MANAGER_IDENTIFIERS) {
   // in production code, this is only accesssed in `record-array-manager`
-  // if LEGACY_COMPAT is also on
+  // if REMOVE_RECORD_ARRAY_MANAGER_LEGACY_COMPAT is also false
   if (!REMOVE_RECORD_ARRAY_MANAGER_LEGACY_COMPAT) {
     Object.defineProperty(InternalModel.prototype, '_recordArrays', {
       get() {
